@@ -7,6 +7,7 @@ import Icon from '@/components/ui/icon';
 
 const Index = () => {
   const [activeSection, setActiveSection] = useState('home');
+  const [selectedSport, setSelectedSport] = useState('all');
 
   const liveMatches = [
     {
@@ -74,6 +75,66 @@ const Index = () => {
       prediction: 'Победа ЦСКА',
       odds: 2.10,
       confidence: 73
+    },
+    {
+      id: 6,
+      sport: 'Футбол',
+      league: 'Премьер-лига',
+      homeTeam: 'Ливерпуль',
+      awayTeam: 'Челси',
+      date: '06.11.2024',
+      time: '17:00',
+      prediction: 'Тотал больше 2.5',
+      odds: 1.92,
+      confidence: 81
+    },
+    {
+      id: 7,
+      sport: 'Баскетбол',
+      league: 'NBA',
+      homeTeam: 'Celtics',
+      awayTeam: 'Heat',
+      date: '06.11.2024',
+      time: '02:30',
+      prediction: 'Победа Celtics',
+      odds: 1.68,
+      confidence: 88
+    },
+    {
+      id: 8,
+      sport: 'Теннис',
+      league: 'ATP Finals',
+      homeTeam: 'Алькарас К.',
+      awayTeam: 'Зверев А.',
+      date: '06.11.2024',
+      time: '21:00',
+      prediction: 'Победа Алькараса',
+      odds: 1.55,
+      confidence: 79
+    },
+    {
+      id: 9,
+      sport: 'Хоккей',
+      league: 'НХЛ',
+      homeTeam: 'Avalanche',
+      awayTeam: 'Rangers',
+      date: '06.11.2024',
+      time: '04:00',
+      prediction: 'Тотал меньше 5.5',
+      odds: 1.88,
+      confidence: 76
+    },
+    {
+      id: 10,
+      sport: 'Футбол',
+      league: 'Бундеслига',
+      homeTeam: 'Боруссия Д',
+      awayTeam: 'Лейпциг',
+      date: '07.11.2024',
+      time: '18:30',
+      prediction: 'Обе забьют',
+      odds: 1.65,
+      confidence: 83
     }
   ];
 
@@ -200,18 +261,59 @@ const Index = () => {
     </div>
   );
 
-  const renderPredictions = () => (
-    <div className="space-y-6 animate-fade-in">
-      <h2 className="text-3xl font-bold">Прогнозы на спорт</h2>
-      
-      <Tabs defaultValue="upcoming" className="w-full">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
-          <TabsTrigger value="upcoming">Предстоящие</TabsTrigger>
-          <TabsTrigger value="archive">Архив</TabsTrigger>
-        </TabsList>
+  const renderPredictions = () => {
+    const filteredPredictions = selectedSport === 'all' 
+      ? upcomingPredictions 
+      : upcomingPredictions.filter(p => p.sport === selectedSport);
+
+    const sports = [
+      { id: 'all', label: 'Все', icon: 'Trophy', count: upcomingPredictions.length },
+      { id: 'Футбол', label: 'Футбол', icon: 'Goal', count: upcomingPredictions.filter(p => p.sport === 'Футбол').length },
+      { id: 'Баскетбол', label: 'Баскетбол', icon: 'Disc', count: upcomingPredictions.filter(p => p.sport === 'Баскетбол').length },
+      { id: 'Теннис', label: 'Теннис', icon: 'Circle', count: upcomingPredictions.filter(p => p.sport === 'Теннис').length },
+      { id: 'Хоккей', label: 'Хоккей', icon: 'Zap', count: upcomingPredictions.filter(p => p.sport === 'Хоккей').length }
+    ];
+
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <h2 className="text-3xl font-bold">Прогнозы на спорт</h2>
         
-        <TabsContent value="upcoming" className="space-y-4 mt-6">
-          {upcomingPredictions.map((match) => (
+        <div className="flex flex-wrap gap-3">
+          {sports.map((sport) => (
+            <button
+              key={sport.id}
+              onClick={() => setSelectedSport(sport.id)}
+              className={`px-5 py-3 rounded-xl font-medium transition-all duration-300 flex items-center gap-2 ${
+                selectedSport === sport.id
+                  ? 'bg-primary text-primary-foreground shadow-lg scale-105'
+                  : 'bg-card border border-border hover:border-primary/50 hover:bg-secondary'
+              }`}
+            >
+              <Icon name={sport.icon} size={20} />
+              {sport.label}
+              <Badge variant="secondary" className={selectedSport === sport.id ? 'bg-white/20' : ''}>
+                {sport.count}
+              </Badge>
+            </button>
+          ))}
+        </div>
+        
+        <Tabs defaultValue="upcoming" className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsTrigger value="upcoming">Предстоящие</TabsTrigger>
+            <TabsTrigger value="archive">Архив</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="upcoming" className="space-y-4 mt-6">
+          {filteredPredictions.length === 0 ? (
+            <Card className="bg-card border-border">
+              <CardContent className="p-12 text-center">
+                <Icon name="Search" size={48} className="mx-auto mb-4 text-muted-foreground" />
+                <p className="text-muted-foreground">Прогнозы по этому виду спорта скоро появятся</p>
+              </CardContent>
+            </Card>
+          ) : (
+            filteredPredictions.map((match) => (
             <Card key={match.id} className="bg-card border-border hover:border-primary/50 transition-all duration-300">
               <CardContent className="p-6">
                 <div className="flex flex-col md:flex-row md:items-center gap-4">
@@ -256,7 +358,7 @@ const Index = () => {
                 </div>
               </CardContent>
             </Card>
-          ))}
+          )))}
         </TabsContent>
         
         <TabsContent value="archive" className="mt-6">
@@ -267,9 +369,10 @@ const Index = () => {
             </CardContent>
           </Card>
         </TabsContent>
-      </Tabs>
-    </div>
-  );
+        </Tabs>
+      </div>
+    );
+  };
 
   const renderStats = () => (
     <div className="space-y-6 animate-fade-in">
